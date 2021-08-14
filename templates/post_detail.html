@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}
+    {{ post.title_tag }}
+{% endblock %}
+{% block content %}
+    <h1>{{ post.title }}</h1>
+    <strong>By: {{ post.author }}</strong><a href=""></a>
+    <br/>
+    {% if user.is_authenticated %}
+        {% if user.id == post.author.id %}
+            <a href="{% url 'post-update' post.pk %}">Edit</a>
+            <a href="{% url 'post-delete' post.pk %}">Delete</a>
+        {% endif %}
+    {% endif %}
+    <hr>
+    <br/>
+    <div>
+        <p>{{ post.body }}</p>
+        <p>{{ post.creation_date }}</p>
+        <a href="{{ post.link }}">{{ post.link }}</a>
+        <br/><br/>
+        <hr>
+    </div>
+    <h2>Comments: </h2>
+    <br/>
+    {% if not post.post_comment.all %}
+        No Comments Yet... <a href="{% url 'comment-creation' post.pk %}"></a>
+    {% else %}
+
+        {% for comments in post.post_comment.all %}
+            <br/>
+            {{ comments.body }}
+            <br/>
+            <strong>
+                {{ comments.creation_date }}
+                <br/>
+                {{ comments.author_name }}
+            </strong>
+            <hr>
+        {% endfor %}
+    {% endif %}
+    {% if user.is_authenticated %}
+
+        <br/>
+        <a href="{% url 'comment-creation' post.pk %}">Add Comment</a>
+        <br/>
+
+        <br/><br/>
+        <a href="{% url 'home' %}" class="btn btn-secondary">Back</a>
+    {% endif %}
+
+    <br/><br/>
+    <form action="{% url 'vote_post_view' post.pk %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" name="post_id" value="{{ post.id }}" class="btn btn-primary btn-sm">Vote</button> - {{ total_votes }} Votes
+    </form>
+{% endblock %}
